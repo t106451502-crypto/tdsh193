@@ -15,19 +15,11 @@ body{margin:0;font:14px/1.45 system-ui,-apple-system,sans-serif}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script>
-/* 離線使用：註冊 Service Worker（GitHub Pages 等 https 網址才會啟用） */
-(function(){ if(!('serviceWorker' in navigator)||!/^https?:$/.test(location.protocol)) return;
-  function chip(txt,ok){ var h=document.querySelector('.hdr-btns'); var c=document.getElementById('offChip');
-    if(!c){ c=document.createElement('span'); c.id='offChip'; c.style.cssText='align-self:center;white-space:nowrap;font:600 11.5px var(--f-body,system-ui);padding:6px 9px;border-radius:12px;border:1px solid var(--line,#ccc)'; if(h) h.append(c); }
-    c.textContent=txt; c.style.background=ok?'#e3f6e6':'#fff4dc'; c.style.color=ok?'#1f6b2a':'#7a5200'; }
-  function status(){ if(navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('status'); }
-  navigator.serviceWorker.addEventListener('message',function(e){ var d=e.data||{}; if(d.type==='sw-status') chip(navigator.onLine?(d.three?'✓ 可離線使用':'下載離線資料中…'):'離線模式',!!d.three); });
-  window.addEventListener('online',status); window.addEventListener('offline',status);
-  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(){ setTimeout(status,800); setTimeout(status,5000); }).catch(function(){}); });
-})();
+/* 已取消離線功能：移除舊的 Service Worker 與快取 */
+(function(){ try{ if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); });
+  if(window.caches) caches.keys().then(function(ks){ ks.forEach(function(k){ if(/^frick3d-/.test(k)) caches.delete(k); }); }); }catch(e){} })();
 </script>
 <title>Frick 壓縮機爆炸圖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
