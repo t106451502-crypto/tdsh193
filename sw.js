@@ -1,5 +1,5 @@
 /* Frick 3D 維修工具：離線快取（Service Worker） */
-const VER='frick3d-20260926c';
+const VER='frick3d-20260926d';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
  'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js',

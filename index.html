@@ -317,8 +317,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 window.MODELS=[{id:'193',name:'TDSH 193 螺旋壓縮機'},{id:'xjs95',name:'XJS 95 螺旋壓縮機'},{id:'xjs120',name:'XJS 120 螺旋壓縮機'},{id:'panel',name:'Quantum HD Unity 控制盤'}];
 window.MODEL=(location.hash||'').slice(1); if(!window.MODELS.some(m=>m.id===window.MODEL)) window.MODEL='';
 if(!window.MODEL){document.getElementById('home').hidden=false;document.getElementById('app').hidden=true;}
-document.querySelectorAll('#home [data-m]').forEach(b=>b.addEventListener('click',()=>{location.hash=b.dataset.m;location.reload();}));
-document.getElementById('homeBtn').addEventListener('click',()=>{location.hash='home';location.reload();});
+window.__paused=false;
+function __showHome(on){ document.getElementById('home').hidden=!on; document.getElementById('app').hidden=on; window.__paused=on; window.scrollTo(0,0); }
+document.querySelectorAll('#home [data-m]').forEach(b=>b.addEventListener('click',()=>{ const m=b.dataset.m;
+  if(m===window.MODEL){ history.replaceState(null,'','#'+m); __showHome(false); dispatchEvent(new Event('resize')); return; }   // 已載入的機型：直接回去，不重新載入
+  location.hash=m; location.reload(); }));
+document.getElementById('homeBtn').addEventListener('click',()=>{ const h=document.getElementById('hmi'); if(h) h.hidden=true;
+  history.replaceState(null,'','#home'); __showHome(true); });   // 回選機型頁：不重新載入，3D 暫停
 (function(){const sel=document.getElementById('modelSel');window.MODELS.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o);});sel.value=window.MODEL;
   sel.addEventListener('change',()=>{location.hash=sel.value;location.reload();});})();
 </script>
@@ -1109,7 +1114,7 @@ const KITS_TXT = '建議備品：完整軸承組 534M0556G02・推力軸承組 1
 /* ---------------- 場景 ---------------- */
 const stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.6:2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.35:2));
 renderer.setSize(stage.clientWidth,stage.clientHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -1897,7 +1902,7 @@ document.getElementById('resetView').onclick=()=>{if(!document.getElementById('p
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const v=new THREE.Vector3();
-function frame(now){
+function frame(now){ if(window.__paused){requestAnimationFrame(frame);return;}
   if(animating){const sp=seqMode?0.0025:0.012;const d=target-T;if(Math.abs(d)<sp||reduce){T=target;animating=false;}else T+=Math.sign(d)*sp;ex.value=Math.round(T*1000);}
   exOut.textContent=Math.round(T*100)+'%';
   for(const p of parts){let k;if(seqMode){k=THREE.MathUtils.clamp(T*NSTEP-p.step,0,1);}else{const W=0.35;k=THREE.MathUtils.clamp((T-(p.step/NSTEP)*(1-W))/W,0,1);}p.group.position.copy(p.dir).multiplyScalar(p.dist*ease(k));}
@@ -2005,7 +2010,7 @@ let RM,RF,SPR_L,Y,bypass,capParts,compZone,springPivot;
 /* ---------------- 場景 ---------------- */
 const stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.6:2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.35:2));
 renderer.setSize(stage.clientWidth,stage.clientHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -2697,7 +2702,7 @@ document.getElementById('resetView').onclick=()=>{if(!document.getElementById('p
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const v=new THREE.Vector3();
-function frame(now){
+function frame(now){ if(window.__paused){requestAnimationFrame(frame);return;}
   if(animating){const sp=seqMode?0.0025:0.012;const d=target-T;if(Math.abs(d)<sp||reduce){T=target;animating=false;}else T+=Math.sign(d)*sp;ex.value=Math.round(T*1000);}
   exOut.textContent=Math.round(T*100)+'%';
   for(const p of parts){let k;if(seqMode){k=THREE.MathUtils.clamp(T*NSTEP-p.step,0,1);}else{const W=0.35;k=THREE.MathUtils.clamp((T-(p.step/NSTEP)*(1-W))/W,0,1);}p.group.position.copy(p.dir).multiplyScalar(p.dist*ease(k));}
@@ -3321,7 +3326,7 @@ function tubeGeo(V,r){ if(V.length===2){ const a=V[0],b=V[1]; V=[a,a.clone().ler
 /* ---------- 場景 ---------- */
 const stage=document.getElementById('stage');
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.6:2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.35:2));
 renderer.setSize(stage.clientWidth,stage.clientHeight);
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.0;
 stage.appendChild(renderer.domElement);
@@ -3550,7 +3555,7 @@ renderer.domElement.addEventListener('pointerleave',()=>{ tip.hidden=true; });
 function onResize(){ const w=stage.clientWidth,h=stage.clientHeight; if(!w||!h) return; renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); }
 addEventListener('resize',onResize); new ResizeObserver(onResize).observe(stage);
 let last=performance.now(), liveT=0;
-function loop(now){ requestAnimationFrame(loop); const dt=Math.min(0.05,(now-last)/1000); last=now;
+function loop(now){ requestAnimationFrame(loop); if(window.__paused) return; const dt=Math.min(0.05,(now-last)/1000); last=now;
   if(Math.abs(doorTgt-doorAng)>0.002){ const df=doorTgt-doorAng, st=Math.min(Math.abs(df),Math.abs(df)*dt*4+dt*0.9); setDoor(doorAng+Math.sign(df)*st); if(sel) selBox.copy(boxOf(sel)); }
   if(camAnim){ const k=Math.min(1,(now-camAnim.s)/camAnim.d), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); controls.target.lerpVectors(camAnim.t0,camAnim.t1,e); if(k>=1) camAnim=null; }
   inLight.intensity=40*Math.min(1,doorAng/1.2);
